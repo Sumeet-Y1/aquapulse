@@ -1,23 +1,23 @@
-# 🌊 AquaPulse
+# AquaPulse
 
 **Smart Rainwater Harvesting Monitoring System**
 
 AquaPulse is a full-stack platform that helps residential societies digitally track and manage their rainwater harvesting (RWH) infrastructure — replacing manual, untracked systems with real-time monitoring of water collection, storage levels, and maintenance schedules.
 
-## 📌 Problem Statement
+## Problem Statement
 
 Many residential societies have rainwater harvesting infrastructure but lack any digital mechanism to monitor collection efficiency, storage levels, and maintenance status — leading to underutilization of a valuable water resource.
 
-## ✨ Features
+## Features
 
-- 🏢 **Society & Unit Management** — Register societies and their RWH units with tank capacity, rooftop area, and install details
-- 💧 **Water Reading Logs** — Track daily/periodic water collection, storage levels, and rainfall data
-- 🔧 **Maintenance Tracking** — Log inspections, cleaning schedules, and get alerts for overdue maintenance
-- 📊 **Analytics Dashboard** — Visualize collection trends, storage utilization, and system efficiency over time
-- 🔐 **Role-Based Access** — Separate views for society admins and residents
-- 🔔 **Smart Alerts** — Notifications for low storage, overdue maintenance, and overflow risk
+- **Society & Unit Management** — Register societies and their RWH units with tank capacity, rooftop area, and install details
+- **Water Reading Logs** — Track daily/periodic water collection, storage levels, and rainfall data
+- **Maintenance Tracking** — Log inspections, cleaning schedules, and get alerts for overdue maintenance
+- **Analytics Dashboard** — Visualize collection trends, storage utilization, and system efficiency over time
+- **Role-Based Access** — Separate views for society admins and residents
+- **Smart Alerts** — Notifications for low storage, overdue maintenance, and overflow risk
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 **Backend**
 - Java 21
@@ -31,7 +31,7 @@ Many residential societies have rainwater harvesting infrastructure but lack any
 - React.js
 - Chart.js / Recharts (for analytics visualization)
 
-## 📁 Project Structure
+## Project Structure
 
 aquapulse-backend/
 ├── controller/ → REST API endpoints
@@ -44,7 +44,7 @@ aquapulse-backend/
 └── config/ → App configuration
 
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Java 21
@@ -60,7 +60,7 @@ cd aquapulse/aquapulse-backend
 
 Configure your PostgreSQL credentials in `src/main/resources/application.properties` before running.
 
-## 📖 Core Entities
+## Core Entities
 
 | Entity | Description |
 |---|---|
@@ -70,10 +70,6 @@ Configure your PostgreSQL credentials in `src/main/resources/application.propert
 | `WaterReading` | Periodic water collection & storage readings |
 | `MaintenanceLog` | Maintenance history and scheduling |
 
-## 🎓 Academic Project
+## License
 
-Developed as part of **R-2025 S.Y B.Tech Information Technology** at Shree L.R. Tiwari College of Engineering.
-
-## 📄 License
-
-This project is for academic purposes.
+This project is developed for academic purposes.
