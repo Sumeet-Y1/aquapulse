@@ -5,6 +5,7 @@ import com.aquapulse.backend.dto.MaintenanceLogResponse;
 import com.aquapulse.backend.service.MaintenanceLogService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class MaintenanceLogController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MaintenanceLogResponse> create(@Valid @RequestBody MaintenanceLogRequest request) {
         return ResponseEntity.ok(maintenanceLogService.create(request));
     }
@@ -30,11 +32,13 @@ public class MaintenanceLogController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MaintenanceLogResponse> update(@PathVariable Long id, @Valid @RequestBody MaintenanceLogRequest request) {
         return ResponseEntity.ok(maintenanceLogService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         maintenanceLogService.delete(id);
         return ResponseEntity.noContent().build();
