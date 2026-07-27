@@ -2,6 +2,8 @@ package com.aquapulse.backend.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -29,9 +31,14 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
-    @ManyToOne
-    @JoinColumn(name = "society_id")
-    private Society society;
+    @Builder.Default
+    @ManyToMany
+    @JoinTable(
+            name = "user_societies",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "society_id")
+    )
+    private Set<Society> societies = new HashSet<>();
 
     public enum Role {
         ADMIN, RESIDENT
