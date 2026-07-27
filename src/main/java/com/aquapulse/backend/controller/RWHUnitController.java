@@ -5,6 +5,7 @@ import com.aquapulse.backend.dto.RWHUnitResponse;
 import com.aquapulse.backend.service.RWHUnitService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class RWHUnitController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RWHUnitResponse> create(@Valid @RequestBody RWHUnitRequest request) {
         return ResponseEntity.ok(rwhUnitService.create(request));
     }
@@ -35,11 +37,13 @@ public class RWHUnitController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<RWHUnitResponse> update(@PathVariable Long id, @Valid @RequestBody RWHUnitRequest request) {
         return ResponseEntity.ok(rwhUnitService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         rwhUnitService.delete(id);
         return ResponseEntity.noContent().build();
