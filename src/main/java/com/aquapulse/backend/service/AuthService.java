@@ -48,7 +48,7 @@ public class AuthService {
         if (request.getSocietyId() != null) {
             Society society = societyRepository.findById(request.getSocietyId())
                     .orElseThrow(() -> new IllegalArgumentException("Society not found"));
-            user.setSociety(society);
+            user.getSocieties().add(society);
         }
 
         userRepository.save(user);
