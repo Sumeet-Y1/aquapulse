@@ -3,6 +3,7 @@ package com.aquapulse.backend.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "societies")
@@ -25,6 +26,12 @@ public class Society {
 
     private String city;
 
+    @Column(unique = true, nullable = false)
+    private String inviteCode;
+
     @OneToMany(mappedBy = "society", cascade = CascadeType.ALL)
     private List<RWHUnit> units;
+
+    @ManyToMany(mappedBy = "societies")
+    private Set<User> members;
 }
