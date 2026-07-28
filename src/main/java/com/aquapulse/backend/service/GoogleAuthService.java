@@ -1,6 +1,7 @@
 package com.aquapulse.backend.service;
 
 import com.aquapulse.backend.dto.AuthResponse;
+import com.aquapulse.backend.dto.GoogleAuthResponse;
 import com.aquapulse.backend.model.entity.User;
 import com.aquapulse.backend.repository.UserRepository;
 import com.aquapulse.backend.security.JwtUtil;
@@ -29,7 +30,7 @@ public class GoogleAuthService {
         this.jwtUtil = jwtUtil;
     }
 
-    public AuthResponse authenticate(String idTokenString) {
+    public GoogleAuthResponse authenticate(String idTokenString) {
         try {
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
                     GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance())
@@ -46,20 +47,39 @@ public class GoogleAuthService {
             String email = payload.getEmail();
             String name = (String) payload.get("name");
 
-            User user = userRepository.findByEmail(email).orElseGet(() -> {
-                User newUser = new User();
-                newUser.setEmail(email);
-                newUser.setFullName(name != null ? name : email);
-                newUser.setPassword(""); // no password for Google-auth users
-                newUser.setRole(User.Role.RESIDENT);
-                return userRepository.save(newUser);
-            });
+            User existingUser = userRepository.findByEmail(email).orElse(null);
 
-            String token = jwtUtil.generateToken(user.getEmail());
-            return new AuthResponse(token, user.getEmail(), user.getFullName(), user.getRole().name());
+            if (existingUser != null) {
+                // returning user — log them in normally
+                String token = jwtUtil.generateToken(existingUser.getEmail());
+                return new GoogleAuthResponse(
+                        false, // needsRoleSelection
+                        new AuthResponse(token, existingUser.getEmail(), existingUser.getFullName(), existingUser.getRole().name()),
+                        null, null
+                );
+            } else {
+                // brand new user — don't create account yet, ask frontend to collect role
+                return new GoogleAuthResponse(true, null, email, name != null ? name : email);
+            }
 
         } catch (GeneralSecurityException | IOException e) {
             throw new IllegalArgumentException("Google token verification failed: " + e.getMessage());
         }
+    }
+
+    public AuthResponse completeGoogleSignup(String email, String fullName, User.Role role) {
+        if (userRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException("Account already exists");
+        }
+
+        User newUser = new User();
+        newUser.setEmail(email);
+        newUser.setFullName(fullName);
+        newUser.setPassword("");
+        newUser.setRole(role);
+        userRepository.save(newUser);
+
+        String token = jwtUtil.generateToken(newUser.getEmail());
+        return new AuthResponse(token, newUser.getEmail(), newUser.getFullName(), newUser.getRole().name());
     }
 }
