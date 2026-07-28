@@ -1,9 +1,6 @@
 package com.aquapulse.backend.controller;
 
-import com.aquapulse.backend.dto.AuthResponse;
-import com.aquapulse.backend.dto.GoogleAuthRequest;
-import com.aquapulse.backend.dto.LoginRequest;
-import com.aquapulse.backend.dto.RegisterRequest;
+import com.aquapulse.backend.dto.*;
 import com.aquapulse.backend.service.AuthService;
 import com.aquapulse.backend.service.GoogleAuthService;
 import jakarta.validation.Valid;
@@ -33,7 +30,13 @@ public class AuthController {
     }
 
     @PostMapping("/google")
-    public ResponseEntity<AuthResponse> googleAuth(@Valid @RequestBody GoogleAuthRequest request) {
+    public ResponseEntity<GoogleAuthResponse> googleAuth(@Valid @RequestBody GoogleAuthRequest request) {
         return ResponseEntity.ok(googleAuthService.authenticate(request.getIdToken()));
+    }
+
+    @PostMapping("/google/complete")
+    public ResponseEntity<AuthResponse> completeGoogleSignup(@Valid @RequestBody CompleteGoogleSignupRequest request) {
+        return ResponseEntity.ok(googleAuthService.completeGoogleSignup(
+                request.getEmail(), request.getFullName(), request.getRole()));
     }
 }
