@@ -1,8 +1,11 @@
 package com.aquapulse.backend.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -10,6 +13,8 @@ import java.util.Map;
 
 @Service
 public class EmailService {
+
+    private static final Logger log = LoggerFactory.getLogger(EmailService.class);
 
     @Value("${brevo.api.key}")
     private String brevoApiKey;
@@ -24,6 +29,12 @@ public class EmailService {
     private static final String BREVO_URL = "https://api.brevo.com/v3/smtp/email";
 
     public void sendOtpEmail(String toEmail, String otpCode, String purpose) {
+        log.info("Attempting to send OTP email to: {}", toEmail);
+        log.info("Using sender: {} <{}>", senderName, senderEmail);
+        log.info("API key present: {}, starts with: {}",
+                brevoApiKey != null && !brevoApiKey.isBlank(),
+                brevoApiKey != null && brevoApiKey.length() > 8 ? brevoApiKey.substring(0, 8) : "TOO_SHORT_OR_NULL");
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("api-key", brevoApiKey);
@@ -53,8 +64,10 @@ public class EmailService {
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(body, headers);
 
         try {
-            restTemplate.postForObject(BREVO_URL, request, String.class);
-        } catch (Exception e) {
+            String response = restTemplate.postForObject(BREVO_URL, request, String.class);
+            log.info("Brevo response: {}", response);
+        } catch (RestClientException e) {
+            log.error("Brevo API call failed", e);
             throw new IllegalArgumentException("Failed to send email: " + e.getMessage());
         }
     }
