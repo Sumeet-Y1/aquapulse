@@ -77,6 +77,7 @@ public class GoogleAuthService {
         newUser.setFullName(fullName);
         newUser.setPassword("");
         newUser.setRole(role);
+        newUser.setEmailVerified(true);
         userRepository.save(newUser);
 
         String token = jwtUtil.generateToken(newUser.getEmail());
