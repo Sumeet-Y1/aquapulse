@@ -2,6 +2,7 @@ package com.aquapulse.backend.controller;
 
 import com.aquapulse.backend.dto.*;
 import com.aquapulse.backend.service.AuthService;
+import com.aquapulse.backend.service.FacebookAuthService;
 import com.aquapulse.backend.service.GoogleAuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +16,12 @@ public class AuthController {
 
     private final AuthService authService;
     private final GoogleAuthService googleAuthService;
+    private final FacebookAuthService facebookAuthService;
 
-    public AuthController(AuthService authService, GoogleAuthService googleAuthService) {
+    public AuthController(AuthService authService, GoogleAuthService googleAuthService, FacebookAuthService facebookAuthService) {
         this.authService = authService;
         this.googleAuthService = googleAuthService;
+        this.facebookAuthService = facebookAuthService;
     }
 
     @PostMapping("/register")
@@ -64,5 +67,10 @@ public class AuthController {
     public ResponseEntity<AuthResponse> completeGoogleSignup(@Valid @RequestBody CompleteGoogleSignupRequest request) {
         return ResponseEntity.ok(googleAuthService.completeGoogleSignup(
                 request.getEmail(), request.getFullName(), request.getRole()));
+    }
+
+    @PostMapping("/facebook")
+    public ResponseEntity<GoogleAuthResponse> facebookAuth(@Valid @RequestBody FacebookAuthRequest request) {
+        return ResponseEntity.ok(facebookAuthService.authenticate(request.getAccessToken()));
     }
 }
