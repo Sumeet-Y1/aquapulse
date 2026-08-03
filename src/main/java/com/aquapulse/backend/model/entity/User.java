@@ -30,6 +30,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean emailVerified = false;
 
     @Builder.Default
     @ManyToMany
