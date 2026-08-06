@@ -26,9 +26,6 @@ public class Society {
 
     private String city;
 
-    @Column(unique = true, nullable = false)
-    private String inviteCode;
-
     @OneToMany(mappedBy = "society", cascade = CascadeType.ALL)
     private List<RWHUnit> units;
 
