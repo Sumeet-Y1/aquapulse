@@ -9,6 +9,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -24,23 +25,31 @@ public class GoogleAuthService {
 
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
+    private GoogleIdTokenVerifier verifier;
 
     public GoogleAuthService(UserRepository userRepository, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
     }
 
+    @PostConstruct
+    void initVerifier() throws GeneralSecurityException, IOException {
+        verifier = new GoogleIdTokenVerifier.Builder(
+                GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance())
+                .setAudience(Collections.singletonList(googleClientId))
+                .build();
+    }
+
     public GoogleAuthResponse authenticate(String idTokenString) {
         try {
-            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
-                    GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance())
-                    .setAudience(Collections.singletonList(googleClientId))
-                    .build();
+            if (idTokenString == null || idTokenString.isBlank()) {
+                throw new IllegalArgumentException("Missing Google ID token");
+            }
 
             GoogleIdToken idToken = verifier.verify(idTokenString);
 
             if (idToken == null) {
-                throw new IllegalArgumentException("Invalid Google ID token");
+                throw new IllegalArgumentException("Google sign-in token is invalid for this app.");
             }
 
             GoogleIdToken.Payload payload = idToken.getPayload();
@@ -63,7 +72,7 @@ public class GoogleAuthService {
             }
 
         } catch (GeneralSecurityException | IOException e) {
-            throw new IllegalArgumentException("Google token verification failed: " + e.getMessage());
+            throw new IllegalArgumentException("Google sign-in could not be verified. Please try again.");
         }
     }
 
