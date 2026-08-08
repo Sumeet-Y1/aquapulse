@@ -10,7 +10,6 @@ import com.aquapulse.backend.security.CustomUserDetails;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
 import java.util.List;
 
 @Service
@@ -18,21 +17,12 @@ public class SocietyService {
 
     private final SocietyRepository societyRepository;
     private final UserRepository userRepository;
+    private final InviteCodeService inviteCodeService;
 
-    private static final String CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    private final SecureRandom random = new SecureRandom();
-
-    public SocietyService(SocietyRepository societyRepository, UserRepository userRepository) {
+    public SocietyService(SocietyRepository societyRepository, UserRepository userRepository, InviteCodeService inviteCodeService) {
         this.societyRepository = societyRepository;
         this.userRepository = userRepository;
-    }
-
-    private String generateInviteCode() {
-        StringBuilder sb = new StringBuilder("AQP-");
-        for (int i = 0; i < 6; i++) {
-            sb.append(CHARS.charAt(random.nextInt(CHARS.length())));
-        }
-        return sb.toString();
+        this.inviteCodeService = inviteCodeService;
     }
 
     private User getCurrentUser() {
@@ -47,12 +37,6 @@ public class SocietyService {
         society.setAddress(request.getAddress());
         society.setCity(request.getCity());
 
-        String code;
-        do {
-            code = generateInviteCode();
-        } while (societyRepository.existsByInviteCode(code));
-        society.setInviteCode(code);
-
         Society saved = societyRepository.save(society);
 
         User currentUser = getCurrentUser();
@@ -62,9 +46,8 @@ public class SocietyService {
         return toResponse(saved);
     }
 
-    public SocietyResponse join(String inviteCode) {
-        Society society = societyRepository.findByInviteCode(inviteCode)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid invite code"));
+    public SocietyResponse join(String code) {
+        Society society = inviteCodeService.validateAndGetSociety(code);
 
         User currentUser = getCurrentUser();
         if (currentUser.getSocieties().contains(society)) {
@@ -110,7 +93,6 @@ public class SocietyService {
     }
 
     private SocietyResponse toResponse(Society society) {
-        return new SocietyResponse(society.getId(), society.getName(), society.getAddress(),
-                society.getCity(), society.getInviteCode());
+        return new SocietyResponse(society.getId(), society.getName(), society.getAddress(), society.getCity());
     }
 }
