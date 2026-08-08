@@ -8,7 +8,9 @@ import com.aquapulse.backend.repository.SocietyRepository;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.time.OffsetDateTime;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @Service
 public class InviteCodeService {
@@ -47,10 +49,10 @@ public class InviteCodeService {
         inviteCode.setCode(code);
         inviteCode.setSociety(society);
         inviteCode.setType(InviteCode.Type.STANDARD);
-        inviteCode.setExpiresAt(LocalDateTime.now().plusHours(24));
+        inviteCode.setExpiresAt(LocalDateTime.now(ZoneOffset.UTC).plusHours(24));
         inviteCodeRepository.save(inviteCode);
 
-        return new InviteCodeResponse(code, inviteCode.getExpiresAt(), "STANDARD");
+        return new InviteCodeResponse(code, OffsetDateTime.of(inviteCode.getExpiresAt(), ZoneOffset.UTC), "STANDARD");
     }
 
     public InviteCodeResponse generateQrCode(Long societyId) {
@@ -68,17 +70,17 @@ public class InviteCodeService {
         inviteCode.setCode(code);
         inviteCode.setSociety(society);
         inviteCode.setType(InviteCode.Type.QR);
-        inviteCode.setExpiresAt(LocalDateTime.now().plusMinutes(5));
+        inviteCode.setExpiresAt(LocalDateTime.now(ZoneOffset.UTC).plusMinutes(5));
         inviteCodeRepository.save(inviteCode);
 
-        return new InviteCodeResponse(code, inviteCode.getExpiresAt(), "QR");
+        return new InviteCodeResponse(code, OffsetDateTime.of(inviteCode.getExpiresAt(), ZoneOffset.UTC), "QR");
     }
 
     public Society validateAndGetSociety(String code) {
         InviteCode inviteCode = inviteCodeRepository.findByCode(code)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid invite code"));
 
-        if (inviteCode.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if (inviteCode.getExpiresAt().isBefore(LocalDateTime.now(ZoneOffset.UTC))) {
             throw new IllegalArgumentException("This invite code has expired");
         }
 
@@ -88,7 +90,7 @@ public class InviteCodeService {
     private void invalidateExisting(Long societyId, InviteCode.Type type) {
         inviteCodeRepository.findTopBySocietyIdAndTypeOrderByIdDesc(societyId, type)
                 .ifPresent(existing -> {
-                    existing.setExpiresAt(LocalDateTime.now());
+                    existing.setExpiresAt(LocalDateTime.now(ZoneOffset.UTC));
                     inviteCodeRepository.save(existing);
                 });
     }
