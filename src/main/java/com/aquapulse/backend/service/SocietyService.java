@@ -93,6 +93,12 @@ public class SocietyService {
     }
 
     private SocietyResponse toResponse(Society society) {
-        return new SocietyResponse(society.getId(), society.getName(), society.getAddress(), society.getCity());
+        return new SocietyResponse(
+                society.getId(),
+                society.getName(),
+                society.getAddress(),
+                society.getCity(),
+                null // invite codes are generated separately via InviteCodeService, not stored on Society
+        );
     }
 }
